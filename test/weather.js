@@ -1,29 +1,9 @@
 let chai = require('chai');
 let chaiHttp = require('chai-http');
 let app = require('../server/server');
-// let server;
 let should = chai.should();
 
 chai.use(chaiHttp);
-
-// before(done => {
-//   server = app.listen(5001, done);
-// })
-
-describe('Server Info', function() {
-  it('check if server works', function(done){
-    chai.request(app)
-      .get('/')
-      .end(function(err, res) {
-        res.should.have.status(200);
-        done();
-      });
-  });
-  // it('check redis server works');
-  // it('check cache redis');
-  // it('get current weather GET');
-  // it('get 5 day forecast High/Low GET');
-});
 
 describe('Weather', function() {
 
@@ -39,7 +19,7 @@ describe('Weather', function() {
         res.body.results.should.have.property('current');
         res.body.results.current.should.be.a('object');
         res.body.results.should.have.property('forecast');
-        res.body.results.location.should.equals("Azusa, CA, USA");
+        res.body.results.location.should.equals("San Diego, CA, USA");
         res.body.results.forecast.should.be.a('object');
         // res.body.should.have.property('current');
         // res.body.should.have.property('forecast'); 
@@ -55,9 +35,7 @@ describe('Weather', function() {
         done();
       })
   });
-
   
-
 });
 
 after(async () => {

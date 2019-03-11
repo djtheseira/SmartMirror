@@ -7,9 +7,7 @@ const forecastWeatherAPI = "https://api.openweathermap.org/data/2.5/forecast";
 const cities = require('../constants/cities').cities;
 
 let darksky = "https://api.darksky.net/forecast/";
-
 let gmaps = "https://maps.googleapis.com/maps/api/geocode/json";
-
 let city = "Azusa";
 let country = "US";
 // let lat = 34.1339;
@@ -99,11 +97,10 @@ exports.getWeather = async (req, res) => {
     data.location = gResults.formatted_address;
     let lat = gResults.geometry.location.lat,
       lng = gResults.geometry.location.lng;
-
-    darksky += process.env.DARKSKY_KEY + "/" + lat + "," + lng;
+    let tempDarksky = darksky + process.env.DARKSKY_KEY + "/" + lat + "," + lng;
     
     let dsOptions = {
-      uri: darksky,
+      uri: tempDarksky,
       qs: {
         "lang": lang,
         "units": units,
