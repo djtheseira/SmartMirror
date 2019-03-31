@@ -2,6 +2,9 @@ let express = require("express");
 const cookieParser = require("cookie-parser");
 const cors = require('cors');
 let app = express();
+app.use(express.static(__dirname + '/public'))
+  .use(cors())
+  .use(cookieParser());
 let routes = require('./server/routes/index')(app);
 let server;
 require('dotenv').config();
@@ -25,10 +28,6 @@ if (app.get('env') === 'development') {
     res.status(err.status || 500).send({ results: 'error' });
   })
 }
-
-app.use(express.static(__dirname + '/public'))
-  .use(cors())
-  .use(cookieParser());
 
 stop = () => {
   server.close();

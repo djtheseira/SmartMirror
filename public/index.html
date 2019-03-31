@@ -4,7 +4,16 @@
     <title>Example of the Authorization Code flow with Spotify</title>
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
     <style type="text/css">
-      #login, #loggedin {
+      html, body {
+        height: 100%;
+      }
+      body {
+        background-color: #333;
+        color: #eee;
+        font-family: Helvetica, Arial;
+        font-size: 2em;
+      }
+      #loggedin {
         display: none;
       }
       .text-overflow {
@@ -13,55 +22,78 @@
         white-space: nowrap;
         width: 500px;
       }
+      #song-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      #song-info {
+        margin-left: 2em;
+        flex: 2;
+      }
+      #song-title {
+        font-size: 3em;
+      }
+      #artist-name {
+        font-size: 1.2em;
+      }
+      #song-status {
+        font-size: 0.9em;
+      }
+      #song-progress {
+        border: 0.15em solid #eee;
+        height: 1em;
+        display: inline-block;
+        width: 80%;
+      }
+      #song-progress-bar {
+        background-color: #eee;
+        border: 0.1em solid transparent;
+        height: 0.75em;
+      }
+      #current-time, #total-time {
+        vertical-align: text-bottom;
+      }
+      #current-time {
+        padding-right: 1em;
+      }
+      #total-time {
+        padding-left: 1em;
+      }
     </style>
   </head>
-
   <body>
     <div class="container">
-      <div id="login">
+      <div id="login" >
         <h1>This is an example of the Authorization Code flow</h1>
         <a href="/login" class="btn btn-primary" >Log in with Spotify</a>
       </div>
       <div id="loggedin">
-        <div id="user-profile">
+        <div id="user-profile" style="display: none;" ></div>
+        <div id="song-container" style="display: none;" >
+          <img id="album-cover" />
+          <div id="song-info" >
+            <p id="song-title"></p>
+            <p id="artist-name"></p>
+            <p id="song-status"></p>
+            <div >
+              <span id="current-time"></span>
+              <div id="song-progress" >
+                <div id="song-progress-bar"></div>
+              </div>
+              <span id="total-time"></span>
+            </div>
+          </div>
         </div>
-        <div id="oauth">
-        </div>
-        <button class="btn btn-default" id="obtain-new-token">Obtain new token using the refresh token</button>
+        <div id="oauth"></div>
+        <button class="btn btn-default"  id="stop-song-timeout" >Stop Song Timeout</button>
+        <br/>
+        <button class="btn btn-default" id="obtain-new-token" >Obtain new token using the refresh token</button>
       </div>
     </div>
-
-    <script id="user-profile-template" type="text/x-handlebars-template">
-      <h1>Logged in as {{display_name}}</h1>
-      <div class="media">
-        <div class="pull-left">
-          <img class="media-object" width="150" src="{{images.0.url}}" />
-        </div>
-        <div class="media-body">
-          <dl class="dl-horizontal">
-            <dt>Display name</dt><dd class="clearfix">{{display_name}}</dd>
-            <dt>Id</dt><dd>{{id}}</dd>
-            <dt>Email</dt><dd>{{email}}</dd>
-            <dt>Spotify URI</dt><dd><a href="{{external_urls.spotify}}">{{external_urls.spotify}}</a></dd>
-            <dt>Link</dt><dd><a href="{{href}}">{{href}}</a></dd>
-            <dt>Profile Image</dt><dd class="clearfix"><a href="{{images.0.url}}">{{images.0.url}}</a></dd>
-            <dt>Country</dt><dd>{{country}}</dd>
-          </dl>
-        </div>
-      </div>
-    </script>
-
-    <script id="oauth-template" type="text/x-handlebars-template">
-      <h2>oAuth info</h2>
-      <dl class="dl-horizontal">
-        <dt>Access token</dt><dd class="text-overflow">{{access_token}}</dd>
-        <dt>Refresh token</dt><dd class="text-overflow">{{refresh_token}}</dd>
-      </dl>
-    </script>
-
-    <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0-alpha.1/handlebars.min.js"></script>
     <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
     <script>
+      let playbackTimeout, timeTimeout;
       (function() {
         /**
          * Obtains parameters from the hash of the URL
@@ -76,60 +108,175 @@
           }
           return hashParams;
         }
-        var userProfileSource = document.getElementById('user-profile-template').innerHTML,
-          userProfileTemplate = Handlebars.compile(userProfileSource),
-          userProfilePlaceholder = document.getElementById('user-profile');
-
-        var oauthSource = document.getElementById('oauth-template').innerHTML,
-          oauthTemplate = Handlebars.compile(oauthSource),
-          oauthPlaceholder = document.getElementById('oauth');
 
         var params = getHashParams();
+        var error = params.error,
+          access_token = "", refresh_token = "";
 
-        var access_token = params.access_token,
-          refresh_token = params.refresh_token,
-          error = params.error;
+
+        function getCookies() {
+          var cookies = decodeURIComponent(document.cookie).split("; ");
+          for (var i = 0; i < cookies.length; i++) {
+            var cookie = cookies[i].split("=");
+            var cookieName = cookie[0];
+            if (cookieName === "refresh_token") {
+              refresh_token = cookie[1];
+            } else if (cookieName = "access_token") {
+              access_token = cookie[1];
+            }
+          }
+        }
 
         if (error) {
           alert('There was an error during the authentication');
         } else {
+          getCookies();
+          console.log('access_token: ', access_token);
+          console.log('refresh_token: ', refresh_token);
           if (access_token) {
             // render oauth info
-            oauthPlaceholder.innerHTML = oauthTemplate({
-              access_token: access_token,
-              refresh_token: refresh_token
-            });
-            $.ajax({
-                url: 'https://api.spotify.com/v1/me',
-                headers: {
-                  'Authorization': 'Bearer ' + access_token
-                },
-                success: function(response) {
-                  console.log(response);
-                  userProfilePlaceholder.innerHTML = userProfileTemplate(response);
-                  $('#login').hide();
-                  $('#loggedin').show();
-                }
-            });
+            // $.ajax({
+            //     url: 'https://api.spotify.com/v1/me',
+            //     headers: {
+            //       'Authorization': 'Bearer ' + access_token
+            //     },
+            //     success: function(response) {
+            //       $('#login').hide();
+            //       $('#loggedin').show();
+            //     }
+            // });
+            getUserInfo();
+            // getCurrentSongInfoAjax();
+            getCurrentSongInfo();
+            $("#stop-song-timeout").on("click", stopTimeout);
+            
           } else {
               // render initial screen
               $('#login').show();
               $('#loggedin').hide();
           }
-          document.getElementById('obtain-new-token').addEventListener('click', function() {
-            $.ajax({
-              url: '/refresh_token',
-              data: {
-                'refresh_token': refresh_token
+          
+          // document.getElementById('obtain-new-token').addEventListener('click', function() {
+          //   $.ajax({
+          //     url: '/refresh_token',
+          //     data: {
+          //       'refresh_token': refresh_token
+          //     }
+          //   }).done(function(data) {
+          //     access_token = data.access_token;
+          //     oauthPlaceholder.innerHTML = oauthTemplate({
+          //       access_token: access_token,
+          //       refresh_token: refresh_token
+          //     });
+          //   });
+          // }, false);
+        }
+
+        // function getCurrentSongInfo() {
+        //   if (playbackTimeout) {
+        //     clearTimeout(playbackTimeout);
+        //   }
+        //   getCurrentSongInfoAjax();
+        // }
+
+        function getCurrentSongInfo() {
+          console.log("current song");
+          $.ajax({
+            url: '/currentSong',
+            data: {
+              access_token: access_token
+            },
+            success: function(response, textStatus, xhr) {
+              let status = xhr.status;
+              // console.log('song response: ', response);
+              if (status == 200) {
+                let data = response.data;
+                let item = data.item;
+                let albumImage = item.album.images[1];
+                let artists = item.artists;
+                $("#album-cover").attr({"src": albumImage.url, "width": albumImage.width, "height": albumImage.height});
+                $("#song-title").text(item.name);
+                $("#artist-name").empty();
+                for (let aCount = 0; aCount < artists.length; aCount++) {
+                  let artist = artists[aCount];
+                  let artistA = "<a href=\"" + artist.external_urls.spotify + "\">" + artist.name + "</a>";
+                  if (aCount < artists.length - 1) {
+                    artistA += ", ";
+                  }
+                  $("#artist-name").append(artistA);
+                }
+                $("#song-status").text(data.is_playing ? "Playing" : "Paused" );
+                $("#song-progress-bar").css("width", "" + (data.progress_ms * 100) / item.duration_ms + "%");
+                $("#total-time").text(convertMsToMin(item.duration_ms));
+                $("#current-time").text(convertMsToMin(data.progress_ms));
+                updateTime(data.progress_ms, item.duration_ms);
+                if (!data.is_playing && timeTimeout) {
+                  clearTimeout(timeTimeout);
+                }
+                $("#song-container").show();
+                playbackTimeout = setTimeout(getCurrentSongInfo, 5000);
+              } else if (status == 204) {
+                stopTimeout();
+              } else {
+                stopTimeout(); 
               }
-            }).done(function(data) {
-              access_token = data.access_token;
-              oauthPlaceholder.innerHTML = oauthTemplate({
-                access_token: access_token,
-                refresh_token: refresh_token
-              });
-            });
-          }, false);
+            }
+          });
+        }
+
+        function updateTime(ms, total) {
+          if (timeTimeout) {
+            clearTimeout(timeTimeout);
+          } 
+          if (ms != total) {
+            timeTimeout = setTimeout(function () {
+              ms += 1000;
+              $("#current-time").text(convertMsToMin(ms));
+              $("#song-progress-bar").css("width", "" +  ms * 100 / total + "%");
+              updateTime(ms, total);
+            }, 1000);
+          }
+        }
+
+        function convertMsToMin(msTime) {
+          let minutes = Math.floor(msTime / 60000);
+          let seconds = ((msTime % 60000) / 1000).toFixed(0);
+          if (seconds >= 60) {
+            seconds = 0;
+            minutes++;
+          }
+          return minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+        }
+
+        function getUserInfo() {
+          $.ajax({
+            url: '/currentUser',
+            data: {
+              access_token: access_token
+            },
+            success: function(response, textStatus, xhr) {
+              let status = xhr.status;
+              console.log('user response: ', response);
+              $('#login').hide();
+              $('#loggedin').show();
+              if (status == 200) {
+
+              } else if (status == 204) {
+
+              } else {
+                
+              }
+            }
+          });
+        }
+
+        function stopTimeout() {
+          if (playbackTimeout) {
+            clearTimeout(playbackTimeout);
+          }
+          if (timeTimeout) {
+            clearTimeout(timeTimeout);
+          }
         }
       })();
     </script>

@@ -7,9 +7,6 @@ exports.authorizeSpotifyLogin = (req, res) => {
 
   let state = generateRandomString(16);
   res.cookie("spotify_auth_state", state);
-  console.log('hi');
-  console.log('state: ' + state);
-
   res.redirect("https://accounts.spotify.com/authorize?" + 
     qs.stringify({
       "response_type": "code",
@@ -24,13 +21,8 @@ exports.authorizeSpotifyLogin = (req, res) => {
 exports.callbackSpotify = (req, res) => {
   let code = req.query.code || null;
   let state = req.query.state || null;
-  // let storedState = req.cookies ? req.cookies['spotify_auth_state'] : null;
-  let storedState = state;
-  console.log('header cookies: ' + req.headers.cookie);
-  console.log('cookies: ' + req.cookies);
-  console.log('state: ' + state);
-  console.log('storedState: ' + storedState);
-
+  let storedState = req.cookies ? req.cookies['spotify_auth_state'] : null;
+  
   if (state === null || state !== storedState) {
     res.redirect('/#' +
       qs.stringify({
@@ -48,7 +40,7 @@ exports.callbackSpotify = (req, res) => {
         grant_type: 'authorization_code'
       },
       headers: {
-        'Authorization': 'Basic ' + (new Buffer(process.env.SPOT_CLIENT + ':' + process.env.SPOT_SECRET).toString('base64'))
+        'Authorization': 'Basic ' + (Buffer.from(process.env.SPOT_CLIENT + ':' + process.env.SPOT_SECRET).toString('base64'))
       },
       json: true
     };
@@ -58,36 +50,61 @@ exports.callbackSpotify = (req, res) => {
         let accessToken = body.access_token,
           refreshToken = body.refresh_token;
 
-        var options = {
-          uri: 'https://api.spotify.com/v1/me',
-          headers: { 'Authorization': 'Bearer ' + accessToken },
-          json: true
-        };
-
-        rp(options)
-        .then(results => {
-            console.log('results: ' + results);
-        })
-        .catch(err => {
-          console.log('error: ' + err);
-        });
-
-        res.redirect('/#' +
-          qs.stringify({
-            access_token: accessToken,
-            refresh_token: refreshToken
-          })
-        );
+        res.cookie("access_token", accessToken);
+        res.cookie("refresh_token", refreshToken);
+        res.redirect('/#');
       })
     .catch(error => {
       console.log("error: " + error);
-      res.redirect('/#' + 
-        qs.stringify({
-          error: 'invalid_token'
-        })
-      );
+      res.redirect('/#');
     });
   }
+}
+
+exports.getUserInfo = (req, res) => {
+  let accessToken = req.query.access_token;
+  var options = {
+    uri: 'https://api.spotify.com/v1/me',
+    headers: { 'Authorization': 'Bearer ' + accessToken },
+    json: true,
+    resolveWithFullResponse: true
+  };
+  rp(options)
+  .then(results => {
+    let statusCode = results.statusCode;
+    let success = statusCode == 200 ? 1 : 0;
+    let data = results.body;
+    res.status(statusCode).send({'success': success, 'data': data});
+  })
+  .catch(error => {
+    console.log('userinfo error: ' + error);
+    res.status(400).send({"status": 0, "error": error});
+  });
+}
+
+exports.getCurrentSongInfo = (req, res) => {
+  let accessToken = req.query.access_token;
+  var options = {
+    uri: 'https://api.spotify.com/v1/me/player/currently-playing?market=US',
+    headers: { 'Authorization': 'Bearer ' + accessToken },
+    json: true,
+    resolveWithFullResponse: true
+  };
+  rp(options)
+  .then(results => {
+    let statusCode = results.statusCode;
+    if (statusCode == 200) {
+      res.status(statusCode).send({"success": 1, "data": results.body});
+    } else if (statusCode == 204) {
+      res.status(statusCode).send({"success": 1, "data": "There is no song currently playing."});
+    } else {
+      res.status(statusCode).send({"success": 0, "data": results.body});
+    }
+  })
+  .catch(err => {
+    console.log('current song error: ' + err);
+    res.status(400).send({})
+  });
 }
 
 let generateRandomString = function(length) {
