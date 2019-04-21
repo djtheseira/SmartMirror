@@ -1,0 +1,18 @@
+#current-location {
+  color: #b1b1b1;
+  font-size: 18px;
+}
+#current-temp {
+  font-size: 30px;
+}
+#forecast-weather {
+  display: flex;
+  justify-content: space-between;
+}
+.forecast-max, .forecast-min, .forecast-day {
+  display: block;
+  font-size: 18px;
+}
+.forecast-min {
+  color: #b1b1b1;
+}

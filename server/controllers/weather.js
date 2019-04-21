@@ -111,30 +111,31 @@ exports.getWeather = async (req, res) => {
     let dsResults = await rp(dsOptions);
     let dsData = JSON.parse(dsResults);
     if (dsData.code) {
-      res.status(400).send({ results: 'Unable to get the weather' });
+      res.status(400).send({ err: 'Unable to get the weather' });
     }
     let curData = dsData.currently;
     let forecastData = dsData.daily.data;
 
     data.current = {
-      temp: curData.temperature,
+      temp: createTempString(curData.temperature),
       humidty: curData.humidity,
       summary: curData.summary,
-      icon: curData.icon,
+      icon: getWeatherIcon(curData.icon),
     };
     let forecastWeather = {};
 
     forecastData.forEach((day, idx) => {
-      let dayDate = moment(day.time * 1000).format('MM/DD');
+      let dayDate = moment(day.time * 1000).format('ddd');
+
       let weatherObject = {
         date: dayDate,
-        maxTemp: day.temperatureHigh,
+        maxTemp: idx == 0 ? createTempString(curData.temperature) : createTempString(day.temperatureHigh),
         maxTempTime: moment(day.temperatureHighTime * 1000).format('hh:mm'),
-        minTemp: day.temperatureLow,
+        minTemp: createTempString(day.temperatureLow),
         minTempTime: moment(day.temperatureLowTime * 1000).format('hh:mm'),
         humidity: day.humidity,
         summary: day.summary,
-        icon: day.icon,
+        icon: getWeatherIcon(day.icon),
         sunrise: moment(day.sunriseTime * 1000).format('hh:mm'),
         sunset: moment(day.sunsetTime * 1000).format('hh:mm'),
       }
@@ -142,7 +143,7 @@ exports.getWeather = async (req, res) => {
     });
     data.forecast = forecastWeather;
 
-    res.status(200).send({ results: data });
+    res.status(200).send({ data });
   } catch (err) {
     console.log('error: ', err);
     res.status(400).send({ results: err.message });
@@ -287,6 +288,29 @@ exports.getCurrentWeather = async(req, res) => {
       res.status(400).send({results: 'WEATHER ERROR'});
     });
 }
+
+let createTempString = function (temp ) {
+  let newTemp = temp > 50 ? Math.ceil(temp) : Math.floor(temp);
+  newTemp += String.fromCharCode(176) + (units === "us" ? "F" : "C");
+  return newTemp;
+}
+
+let getWeatherIcon = function (icon) {
+  const weatherTypes = {
+    "clear-day": "clear-day",
+    "clear-night": "clear-night",
+    "rain": "rain",
+    "snow": "snow",
+    "sleet": "snow",
+    "wind": "wind",
+    "fog": "fog",
+    "cloudy": "cloudy",
+    "partly-cloudy-day": "cloudy-day",
+    "partly-cloudy-night": "cloudy-night"
+  };
+  return icon ? weatherTypes[icon] : null;
+}
+
 
 // weather_req_url = "https://api.darksky.net/forecast/%s/%s,%s?lang=%s&units=%s&exclude=%s" % (darksky_key, latitude, longitude, weather_lang, weather_unit, exclude)
 

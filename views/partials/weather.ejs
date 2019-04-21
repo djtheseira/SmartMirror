@@ -1,0 +1,63 @@
+<link rel="stylesheet" type="text/css" href="/css/weather.css" >
+<div class="col-sm-4 module-container" id="weather-container" style="display: none; ">
+  <div id="current-location"></div>
+  <hr />
+  <div id="current-weather">
+    <span id="current-temp"></span>
+    <span id="current-icon">I</span>
+  </div>
+  <hr />
+  <div id="forecast-weather"></div>
+</div>
+<script>
+// var weatherTimeout;
+$(function() {
+  function getWeather() {
+    //TODO: Add daily timeout
+    // if (timeTimeout) {
+    //   clearTimeout(timeTimeout);
+    // }
+    $.ajax({
+      url: '/weather/0',
+      success: function(results) {
+        let data = results.data;
+        let location = data.location;
+        let current = data.current;
+        let forecast = data.forecast;
+        
+        $("#current-location").text(location);
+        $("#current-temp").text(current.temp);
+        createDayElements(forecast);
+        $("#weather-container").show();
+      }
+    });
+  };
+
+  function createDayElements(forecastData) {
+    $("#forecast-weather").hide().empty();
+    $.each(forecastData, function(idx, item) {
+      let dayContainer = $("<div>", {"class": "forecast-date-container"});
+      //TODO: Download forecast images from darksky
+      let icon = $("<img>", {
+        "src": "/images/" + item.icon + ".svg", 
+        "alt": item.summary, "class": "forecast-icon"});
+      let max = $("<span>", {"text": item.maxTemp, "class": "forecast-max"});
+      let min = $("<span>", {"text": item.minTemp, "class": "forecast-min"});
+      let day = $("<span>", {"text": item.date, "class": "forecast-day"});
+      dayContainer.append(icon);
+      dayContainer.append(max);
+      dayContainer.append(min);
+      dayContainer.append(day);
+      $("#forecast-weather").append(dayContainer);
+    });
+    $("#forecast-weather").hide().show();
+  }
+
+  function ascii(a) {
+    return String.fromCharCode(a);
+  }
+
+  getWeather();
+
+});
+</script>

@@ -1,0 +1,19 @@
+html, body, .container {
+  height: 100%;
+}
+.container {
+  padding-top: 2%;
+  padding-bottom: 2%;
+}
+.container > .row {
+  height: 50%;
+}
+body {
+  background-color: #333;
+  color: #eee;
+  font-family: Helvetica, Arial;
+  font-size: 2em;
+}
+.module-container {
+  text-align: center;
+}

@@ -1,0 +1,31 @@
+<link rel="stylesheet" type="text/css" href="/css/time.css" >
+<div class="col-sm-4 module-container" id="time-container" >
+  <span id="date-info"></span>
+  <span id="time-info"></span>
+</div>
+<script>
+var timeTimeout;
+$(function() {
+  function getTime() {
+    if (timeTimeout) {
+      clearTimeout(timeTimeout);
+    }
+    $.ajax({
+      url: '/time',
+      data: {
+        timezone: 'America/Los_Angeles'
+      },
+      success: function(data) {
+
+        $("#date-info").text(data.day);
+        $("#time-info").text(data.time);
+        var timeout = (60 - new Date().getSeconds()) * 1000;
+        setTimeout(getTime, timeout);
+      }
+    });
+  };
+
+  getTime();
+
+});
+</script>

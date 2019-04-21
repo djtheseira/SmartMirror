@@ -1,10 +1,13 @@
 let express = require("express");
 const cookieParser = require("cookie-parser");
+const bodyParser = require("body-parser");
 const cors = require('cors');
 let app = express();
 app.use(express.static(__dirname + '/public'))
   .use(cors())
-  .use(cookieParser());
+  .use(cookieParser())
+  .use(bodyParser.urlencoded({extended: true}));
+app.set('view engine', 'ejs');
 let routes = require('./server/routes/index')(app);
 let server;
 require('dotenv').config();

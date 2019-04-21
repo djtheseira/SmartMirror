@@ -4,18 +4,20 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node ./server/server.js",
-    "dev": "nodemon --watch ./ ./app.js",
+    "start": "node ./server/app.js",
+    "dev": "nodemon -e .ejs,.js --watch ./ ./app.js",
     "test": "mocha"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.18.3",
     "chai": "^4.1.2",
     "chai-http": "^4.0.0",
     "cookie-parser": "^1.4.3",
     "cors": "^2.8.5",
     "dotenv": "^6.0.0",
+    "ejs": "^2.6.1",
     "express": "^4.16.3",
     "mocha": "^5.2.0",
     "moment": "^2.22.2",

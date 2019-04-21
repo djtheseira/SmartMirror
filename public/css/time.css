@@ -1,0 +1,12 @@
+#date-info, #time-info {
+  display: block;
+}
+#date-info {
+  color: #b1b1b1;
+  font-size: 20px;
+}
+
+#time-info {
+  color: #fff;
+  font-size: 30px;
+}
