@@ -1,0 +1,41 @@
+<div class="col-sm-4 module-container" id="google-container" >
+  <a href="javascript:void(0);" target="_blank" id="gcal-auth-url" >Get User Auth</a>
+  <h1>Google</h1>
+</div>
+<script>
+let gCalWindow;
+let gCalInterval;
+$(function() {
+  function getAuthUrl() {
+    $.ajax({
+      url: '/getuserauth',
+      success: function(results) {
+        if (results.url) {
+          gCalWindow = window.open(results.url, '_blank', 'toolbar=0,status=0,width=626,height=700,top=100,left=100');
+          gCalInterval = setInterval(checkGoogleWindow, 500);
+        } else {
+          getCalendarList();
+        }
+      }
+    });
+  }
+
+  function getCalendarList() {
+    $.ajax({
+      url: '/getcalendaritems',
+      success: function(results) {
+        console.log(results);
+      }
+    })
+  }
+
+  function checkGoogleWindow() {
+    if (gCalWindow.closed) {
+      clearInterval(gCalInterval);
+      getCalendarList();
+    }
+  }
+
+  $("#gcal-auth-url").on("click", getAuthUrl)
+});
+</script>
