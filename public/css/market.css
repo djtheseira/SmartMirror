@@ -1,0 +1,23 @@
+#stocks-container {
+  text-align: left;
+}
+.up {
+  color: #008000;
+}
+.down {
+  color: #ff0000;
+}
+.symbol, .price, .change {
+  display: inline-block;
+}
+.symbol {
+  width: 60%;
+}
+.price {
+  width: 20%;
+  text-align: right;
+}
+.change {
+  width: 15%;
+  text-align: right;
+}

@@ -4,7 +4,7 @@ const util = require('util');
 require('dotenv').config();
 
 const ccUrl = "https://min-api.cryptocompare.com/data/pricemulti?fsyms=[fsyms]&tsyms=USD";
-const iexUrl = "https://api.iextrading.com/1.0/stock/market/batch?symbols=[fsyms]&types=price";
+const iexUrl = "https://api.iextrading.com/1.0/stock/market/batch?symbols=[fsyms]&types=quote";
 const defaultCoins = "BTC,ETH,NEO,XRP";
 const defaultStocks = "aAAPL,FB,SNAP,RTN,BABA,TSLA"
 
@@ -27,7 +27,7 @@ exports.getMarketPrices = async (req, res) => {
 
   if (stocks) {
     let stock = await getStockPrices(stockUrl);
-    if (Object.keys(stock).length > 0) {
+    if (stock.length > 0) {
       results.stock = stock;
     }
     if (stock.status) {
@@ -64,7 +64,19 @@ let getStockPrices = async(stockUrl) => {
   let stockPrices = await rp(stockOptions)
     .then(results => {
       let json = JSON.parse(results);
-      return json;
+      let stocks = [];
+      Object.keys(json).forEach((key, idx) => {
+        let quote = json[key].quote;
+        let change = Math.ceil(quote.changePercent * 10000)/100;
+
+        let stock = {
+          symbol: quote.symbol,
+          price: "$" + quote.latestPrice,
+          change
+        };
+        stocks.push(stock);
+      });
+      return stocks;
     })
     .catch(err => {
       return { status: 400, "Error": err.message };

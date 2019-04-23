@@ -1,3 +1,46 @@
+<link rel="stylesheet" type="text/css" href="/css/market.css" >
 <div class="col-sm-4 module-container" id="stocks-container" >
-  <h1>Stocks</h1>
+  <a href="javascript:void(0);" id="market-refresh" >Refresh</a>
+  <ul id="stock-list"></ul>
+  <hr />
+  <ul id="crypto-list"></ul>
 </div>
+<script>
+$(function() {
+  function getMarketInfo() {
+    $.ajax({
+      url: "/market",
+      success: createMarketInfoList
+    })
+  }
+  
+  function createMarketInfoList(data) {
+    let results = data.results;
+    if (results.stock) {
+      let stocks = results.stock;
+      let stockList = $("#stock-list");
+      stockList.empty();
+      $.each(stocks, (idx, stock) => {
+        let $stock = $("<li>", {"class": "stock"});
+        let $symbol = $("<span>", {"class": "symbol", "text": stock.symbol});
+        let $price = $("<span>", {"class": "price", "text": stock.price});
+        // let change = stock.change.replace("-", "- ");
+        // change = (stock.change >= 0 ? "+ " : "");
+        let $change = $("<span>", { "class": "change " + (stock.change >= 0 ? "up" : "down") , "text": stock.change });
+        $stock.append($symbol);
+        $stock.append($price);
+        $stock.append($change);
+        stockList.append($stock);
+      });
+    }
+
+    if (results.crypto) {
+
+    }
+  }
+
+  getMarketInfo();
+
+  $("#market-refresh").on("click", getMarketInfo);
+});
+</script>

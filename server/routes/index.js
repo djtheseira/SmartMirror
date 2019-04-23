@@ -1,8 +1,9 @@
 var fs = require('fs');
+let moment = require('moment');
 
 module.exports = function(app){
     app.get('/', function(req, res) {
-      res.render('index');
+      res.render('index', {moment: moment});
     });
 
     fs.readdirSync(__dirname).forEach(function(file) {
