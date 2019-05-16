@@ -11,7 +11,7 @@ $(function() {
     $.ajax({
       url: "/market",
       success: createMarketInfoList
-    })
+    });
   }
   
   function createMarketInfoList(data) {
@@ -35,7 +35,18 @@ $(function() {
     }
 
     if (results.crypto) {
-
+      let cryptos = results.crypto;
+      let cryptoList = $("#crypto-list");
+      $.each(cryptos, (idx, crypto) => {
+        let $crypto = $("<li>", {"class": "stock"});
+        let $name = $("<span>", {"class": "symbol", "text": crypto.coin});
+        let $price = $("<span>", {"class": "price", "text": crypto.price});
+        let $change = $("<span>", { "class": "change " + (crypto.change >= 0 ? "up" : "down") , "text": crypto.change });
+        $crypto.append($name);
+        $crypto.append($price);
+        $crypto.append($change);
+        cryptoList.append($crypto);
+      });
     }
   }
 

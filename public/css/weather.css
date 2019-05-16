@@ -3,7 +3,11 @@
   font-size: 18px;
 }
 #current-temp {
+  vertical-align: middle;
   font-size: 30px;
+}
+#current-icon {
+  width: 70px;
 }
 #forecast-weather {
   display: flex;

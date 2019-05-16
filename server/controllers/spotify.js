@@ -96,7 +96,7 @@ exports.getCurrentSongInfo = (req, res) => {
     if (statusCode == 200) {
       res.status(statusCode).send({"success": 1, "data": results.body});
     } else if (statusCode == 204) {
-      res.status(statusCode).send({"success": 1, "data": "There is no song currently playing."});
+      res.status(statusCode).send({"success": 1, "data": "No song currently playing."})
     } else {
       res.status(statusCode).send({"success": 0, "data": results.body});
     }

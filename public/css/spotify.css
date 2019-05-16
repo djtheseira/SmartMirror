@@ -1,6 +1,3 @@
-#loggedin {
-  display: none;
-}
 .text-overflow {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -9,18 +6,23 @@
 }
 #song-container {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
 }
 #song-info {
-  margin-left: 2em;
   flex: 2;
+  width: 100%;
+  margin-top: 5px;
+}
+#song-info p {
+  margin: 0 0 5px;
 }
 #song-title {
-  font-size: 3em;
+  font-size: 1.3em;
 }
 #artist-name {
-  font-size: 1.2em;
+  font-size: 1em;
 }
 #song-status {
   font-size: 0.9em;
@@ -29,7 +31,7 @@
   border: 0.15em solid #eee;
   height: 1em;
   display: inline-block;
-  width: 80%;
+  width: 70%;
 }
 #song-progress-bar {
   background-color: #eee;
@@ -40,8 +42,8 @@
   vertical-align: text-bottom;
 }
 #current-time {
-  padding-right: 1em;
+  padding-right: 0.5em;
 }
 #total-time {
-  padding-left: 1em;
+  padding-left: 0.5em;
 }

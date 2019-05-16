@@ -1,9 +1,8 @@
 const rp = require('request-promise');
-const moment = require('moment');
 const util = require('util');
 require('dotenv').config();
 
-const ccUrl = "https://min-api.cryptocompare.com/data/pricemulti?fsyms=[fsyms]&tsyms=USD";
+const ccUrl = "https://min-api.cryptocompare.com/data/pricemultifull?fsyms=[fsyms]&tsyms=USD";
 const iexUrl = "https://api.iextrading.com/1.0/stock/market/batch?symbols=[fsyms]&types=quote";
 const defaultCoins = "BTC,ETH,NEO,XRP";
 const defaultStocks = "aAAPL,FB,SNAP,RTN,BABA,TSLA"
@@ -49,7 +48,19 @@ let getCryptoPrices = async(coinsUrl) => {
       if (json["Response"] === "Error") {
         return {"Error": json["Message"], "ParameterWithError": json["ParamWithError"]};
       }
-      return json;
+      let cryptos = [];
+      let raw = json.RAW;
+      Object.keys(raw).forEach((key, idx) => {
+        let usd = raw[key].USD;
+        let change = Math.ceil(usd.CHANGEPCTDAY * 100)/100;
+        let crypto = {
+          coin: key,
+          price: "$" + usd.PRICE.toLocaleString(),
+          change
+        };
+        cryptos.push(crypto);
+      })
+      return cryptos;
     })
     .catch(err => {
       return { status: 400, "Error": err.message };
@@ -71,7 +82,7 @@ let getStockPrices = async(stockUrl) => {
 
         let stock = {
           symbol: quote.symbol,
-          price: "$" + quote.latestPrice,
+          price: "$" + quote.latestPrice.toLocaleString(),
           change
         };
         stocks.push(stock);

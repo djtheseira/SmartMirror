@@ -27,6 +27,7 @@
     "query-string": "^6.2.0",
     "redis": "^2.8.0",
     "request": "^2.88.0",
-    "request-promise": "^4.2.2"
+    "request-promise": "^4.2.2",
+    "rss-parser": "^3.7.0"
   }
 }

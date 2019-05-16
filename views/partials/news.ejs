@@ -1,3 +1,36 @@
+<link rel="stylesheet" type="text/css" href="/css/news.css" >
 <div class="col-sm-4 module-container" id="news-container" >
-  <h1>News</h1>
+  <ul id="news-list"></ul>
+  <a href="javascript:void(0);" id="refresh-news" >Refresh</a>
 </div>
+
+<script>
+$(function() {
+  function getNewsArticles() {
+    $.ajax({
+      url: "/news",
+      success: createNewsList
+    });
+  }
+
+  function createNewsList(data) {
+    let newsList = $("#news-list");
+    let articles = data.news;
+    $.each(articles, (idx, article) => {
+      let $article = $("<li>", {"class": "article"});
+      let $title = $("<a>", {"class": "article-title", "text": article.title, "href": article.link })
+      let $date = $("<span>", {"class": "article-date", "text": article.time});
+      let $source = $("<span>", {"class": "article-source", "text": article.source});
+
+      $article.append($title);
+      $article.append($date);
+      $article.append($source);
+      newsList.append($article)
+    });
+    
+  }
+  getNewsArticles();
+  $("#refresh-news").on("click", getNewsArticles);
+
+});
+</script>

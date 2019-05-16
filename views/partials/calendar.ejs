@@ -53,22 +53,31 @@ $(function() {
   function createEventsList(results) {
     let eventsList = $("#events-list");
     eventsList.empty();
-    $.each(results.events, (idx, item) => {
+    if (results.events.length) {
+      $.each(results.events, (idx, item) => {
+        let event = $("<li>", {
+          "class": "event",
+        });
+        let summary = "<span class=\"event-summary\">" + item.summary + "</span>";
+        let date = "<span class=\"event-date\">";
+        if (item.start.date) {
+          date += "All Day";
+        } else {
+          date += item.timeSpan;
+        }
+        date += "</span>";
+        event.append(summary);
+        event.append(date);
+        eventsList.append(event);
+      });
+    } else {
       let event = $("<li>", {
         "class": "event",
       });
-      let summary = "<span class=\"event-summary\">" + item.summary + "</span>";
-      let date = "<span class=\"event-date\">";
-      if (item.start.date) {
-        date += "All Day";
-      } else {
-        date += item.timeSpan;
-      }
-      date += "</span>";
-      event.append(summary);
-      event.append(date);
+      let noEvents = "<span class=\"event-summary\" style=\"text-align: center;\">No events are planned for today. <br/><br/>Enjoy your day off!</span>";
+      event.append(noEvents);
       eventsList.append(event);
-    });
+    }
   }
 
   function checkGoogleWindow() {
@@ -79,6 +88,5 @@ $(function() {
   }
   
   getCookies();
-  // $("#gcal-auth-url").on("click", getAuthUrl)
 });
 </script>

@@ -10,6 +10,7 @@ app.use(express.static(__dirname + '/public'))
 app.set('view engine', 'ejs');
 let routes = require('./server/routes/index')(app);
 let server;
+
 require('dotenv').config();
 // app.use(express.static(__dirname + '/css'));
 

@@ -4,7 +4,7 @@
   <hr />
   <div id="current-weather">
     <span id="current-temp"></span>
-    <span id="current-icon">I</span>
+    <img id="current-icon" />
   </div>
   <hr />
   <div id="forecast-weather"></div>
@@ -27,6 +27,7 @@ $(function() {
         
         $("#current-location").text(location);
         $("#current-temp").text(current.temp);
+        $("#current-icon").attr("src", ("/images/" + current.icon + ".svg"));
         createDayElements(forecast);
         $("#weather-container").show();
       }
@@ -37,7 +38,6 @@ $(function() {
     $("#forecast-weather").hide().empty();
     $.each(forecastData, function(idx, item) {
       let dayContainer = $("<div>", {"class": "forecast-date-container"});
-      //TODO: Download forecast images from darksky
       let icon = $("<img>", {
         "src": "/images/" + item.icon + ".svg", 
         "alt": item.summary, "class": "forecast-icon"});

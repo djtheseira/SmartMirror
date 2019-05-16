@@ -124,7 +124,7 @@ exports.getWeather = async (req, res) => {
     };
     let forecastWeather = {};
 
-    forecastData.forEach((day, idx) => {
+    forecastData.slice(1).forEach((day, idx) => {
       let dayDate = moment(day.time * 1000).format('ddd');
 
       let weatherObject = {
@@ -141,6 +141,7 @@ exports.getWeather = async (req, res) => {
       }
       forecastWeather[idx] = weatherObject;
     });
+
     data.forecast = forecastWeather;
 
     res.status(200).send({ data });

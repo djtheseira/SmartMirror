@@ -1,5 +1,10 @@
 #stocks-container {
   text-align: left;
+  height: 100%;
+}
+#stock-list, #crypto-list {
+  height: 40%;
+  overflow: scroll;
 }
 .up {
   color: #008000;
