@@ -1,10 +1,10 @@
-<link rel="stylesheet" type="text/css" href="/css/news.css" >
 <div class="col-sm-4 module-container" id="news-container" >
   <ul id="news-list"></ul>
-  <a href="javascript:void(0);" id="refresh-news" >Refresh</a>
 </div>
 
 <script>
+let newsTimeout;
+let firstLoadNews = true;
 $(function() {
   function getNewsArticles() {
     $.ajax({
@@ -16,6 +16,7 @@ $(function() {
   function createNewsList(data) {
     let newsList = $("#news-list");
     let articles = data.news;
+    newsList.empty();
     $.each(articles, (idx, article) => {
       let $article = $("<li>", {"class": "article"});
       let $title = $("<a>", {"class": "article-title", "text": article.title, "href": article.link })
@@ -27,10 +28,12 @@ $(function() {
       $article.append($source);
       newsList.append($article)
     });
-    
+    newsTimeout = setTimeout(getNewsArticles, (60 - new Date().getMinutes()) * 60000 + (60 - new Date().getSeconds()) * 60);
+    if (firstLoadNews) {
+      firstLoadNews = false;
+      doneLoading++;
+    }
   }
   getNewsArticles();
-  $("#refresh-news").on("click", getNewsArticles);
-
 });
 </script>

@@ -1,7 +1,8 @@
-<link rel="stylesheet" type="text/css" href="/css/spotify.css" >
 <div class="col-sm-4 module-container" id="spotify-container" >
+  <a href="javascript:void(0);" id="test-refresh-spot" >refresh spot</a>
   <div id="login" style="display: none;" >
-    <a href="/login" class="btn btn-primary" >Log in with Spotify</a>
+    <p>Please allow access to your spotify account for this app to work.</p>
+    <a class="btn btn-primary" id="verify-spotify" style="display: none;" >Connect to Spotify</a>
   </div>
   <div id="loggedin" >
     <div id="user-profile" style="display: none;" ></div>
@@ -26,7 +27,11 @@
 
 <script>
   let playbackTimeout, playTimeTimeout;
+  let spotifyVerifyWindow;
+  let spotifyInterval;
+  let firstLoadSpotify = true;
   $(function() {
+
     function getHashParams() {
       var hashParams = {};
       var e, r = /([^&;=]+)=?([^&;]*)/g,
@@ -44,33 +49,70 @@
 
     function getCookies() {
       var cookies = decodeURIComponent(document.cookie).split("; ");
+      access_token = "", refresh_token = "";
       for (var i = 0; i < cookies.length; i++) {
         var cookie = cookies[i].split("=");
         var cookieName = cookie[0];
         if (cookieName === "refresh_token") {
           refresh_token = cookie[1];
-        } else if (cookieName = "access_token") {
+        } else if (cookieName === "access_token") {
           access_token = cookie[1];
         }
       }
     }
 
     getCookies();
-    console.log('access_token: ', access_token);
-    console.log('refresh_token: ', refresh_token);
     
-    if (access_token) {
+    if (access_token && refresh_token) {
       // getUserInfo();
       getCurrentSongInfo();
       $("#stop-song-timeout").on("click", stopTimeout);
+    } else if (!access_token && refreshToken) {
+      refreshToken();
     } else {
-        // render initial screen
-        $('#login').show();
-        $('#loggedin').hide();
+      getAuthUrl();
     }
 
+    function getAuthUrl() {
+      spotifyVerifyWindow = window.open("/login", '_blank', 'toolbar=0,status=0,width=626,height=700,top=100,left=100');
+      spotifyInterval = setInterval(checkSpotifyWindow, 500);
+    }
+
+    function checkSpotifyWindow() {
+      if (spotifyVerifyWindow.closed) {
+        clearInterval(spotifyInterval);
+        getCookies();
+        if (access_token && refresh_token) {
+          getCurrentSongInfo();
+          $('#loggedin').show();
+          $('#login').hide();
+        } else {
+          $("#verify-spotify").on("click", getAuthUrl);
+          $('#loggedin').hide();
+          $('#login').show();
+        }
+      }
+    }
+
+    function refreshToken() {
+      $.ajax({
+        url: "/refreshToken",
+        data: {
+          refresh_token: refresh_token
+        },
+        success: getCurrentSongInfo,
+        error: getAuthUrl
+      });
+    }
+
+    $("#test-refresh-spot").on("click", refreshToken);
+
     function getCurrentSongInfo() {
-      console.log("current song");
+      getCookies();
+      if (!access_token) {
+        refreshToken();
+        return;
+      }
       $.ajax({
         url: '/currentSong',
         data: {
@@ -103,17 +145,24 @@
               clearTimeout(playTimeTimeout);
             }
             $("#song-container").show();
-            playbackTimeout = setTimeout(getCurrentSongInfo, 5000);
-          } else if (status == 204) {
-            $("#no-song-status").text("No song is currently playing.").show();
-            stopTimeout();
+            let timeoutTime = item.duration_ms - data.progress_ms  > 5000 ? 5000 : item.duration_ms - data.progress_ms;
+            playbackTimeout = setTimeout(getCurrentSongInfo, timeoutTime);
           } else {
             stopTimeout(); 
           }
+          if (firstLoadSpotify) {
+            firstLoadSpotify = false;
+            doneLoading++;
+          }
         },
         error: function() {
-          $('#login').show();
-          $('#loggedin').hide();
+          if (access_token && refresh_token) {
+            playbackTimeout = setTimeout(getCurrentSongInfo, 5000);
+          } else {
+            $('#login').show();
+            $('#loggedin').hide();
+            getAuthUrl();
+          }
         }
       });
     }
@@ -140,28 +189,6 @@
         minutes++;
       }
       return minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
-    }
-
-    function getUserInfo() {
-      $.ajax({
-        url: '/currentUser',
-        data: {
-          access_token: access_token
-        },
-        success: function(response, textStatus, xhr) {
-          let status = xhr.status;
-          console.log('user response: ', response);
-          $('#login').hide();
-          $('#loggedin').show();
-          if (status == 200) {
-
-          } else if (status == 204) {
-
-          } else {
-            
-          }
-        }
-      });
     }
 
     function stopTimeout() {

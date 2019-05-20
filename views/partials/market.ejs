@@ -1,11 +1,11 @@
-<link rel="stylesheet" type="text/css" href="/css/market.css" >
 <div class="col-sm-4 module-container" id="stocks-container" >
-  <a href="javascript:void(0);" id="market-refresh" >Refresh</a>
   <ul id="stock-list"></ul>
   <hr />
   <ul id="crypto-list"></ul>
 </div>
 <script>
+let marketTimeout;
+let firstLoadMarket = true;
 $(function() {
   function getMarketInfo() {
     $.ajax({
@@ -15,6 +15,9 @@ $(function() {
   }
   
   function createMarketInfoList(data) {
+    if (marketTimeout) {
+      clearTimeout(marketTimeout);
+    }
     let results = data.results;
     if (results.stock) {
       let stocks = results.stock;
@@ -37,6 +40,7 @@ $(function() {
     if (results.crypto) {
       let cryptos = results.crypto;
       let cryptoList = $("#crypto-list");
+      cryptoList.empty();
       $.each(cryptos, (idx, crypto) => {
         let $crypto = $("<li>", {"class": "stock"});
         let $name = $("<span>", {"class": "symbol", "text": crypto.coin});
@@ -47,11 +51,17 @@ $(function() {
         $crypto.append($change);
         cryptoList.append($crypto);
       });
+      //autoScroll(cryptoList, 1, results.crypto.length);
+    }
+    marketTimeout = setTimeout(getMarketInfo, 30000);
+    if (firstLoadMarket) {
+      firstLoadMarket = false;
+      doneLoading++;
     }
   }
 
   getMarketInfo();
-
-  $("#market-refresh").on("click", getMarketInfo);
+  
 });
+
 </script>

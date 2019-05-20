@@ -1,6 +1,6 @@
 let chai = require('chai');
 let chaiHttp = require('chai-http');
-let app = require('../server/server');
+let app = require('../app');
 let should = chai.should();
 
 chai.use(chaiHttp);
@@ -14,13 +14,13 @@ describe('Weather', function() {
         res.should.have.status(200);
         res.should.be.json;
         res.body.should.be.a('object');
-        res.body.should.have.property('results');
-        res.body.results.should.have.property('location');
-        res.body.results.should.have.property('current');
-        res.body.results.current.should.be.a('object');
-        res.body.results.should.have.property('forecast');
-        res.body.results.location.should.equals("San Diego, CA, USA");
-        res.body.results.forecast.should.be.a('object');
+        res.body.should.have.property('data');
+        res.body.data.should.have.property('location');
+        res.body.data.should.have.property('current');
+        res.body.data.current.should.be.a('object');
+        res.body.data.should.have.property('forecast');
+        res.body.data.location.should.equals("San Diego, CA, USA");
+        res.body.data.forecast.should.be.a('object');
         // res.body.should.have.property('current');
         // res.body.should.have.property('forecast'); 
         done();

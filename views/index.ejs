@@ -3,21 +3,75 @@
   <head>
     <title>Smart Something</title>
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" >
-    <link rel="stylesheet" type="text/css" href="/css/style.css" >
+    <link rel="stylesheet" type="text/css" href="/css/style.css?v=1" >
+    <link rel="stylesheet" type="text/css" href="/css/market.css?v=1" >
+    <link rel="stylesheet" type="text/css" href="/css/spotify.css?v=1" >
+    <link rel="stylesheet" type="text/css" href="/css/calendar.css?v=1" >
+    <link rel="stylesheet" type="text/css" href="/css/news.css?v=1" >
+    <link rel="stylesheet" type="text/css" href="/css/weather.css?v=1" >
+    <link rel="stylesheet" type="text/css" href="/css/time.css?v=1" >
     <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
   </head>
   <body>
     <div class="container" >
-      <div class="row" >
+      <div id="loading" ></div>
+      <div class="row" style="display: none;" >
         <%- include('partials/weather') %>
         <%- include('partials/time') %>
         <%- include('partials/news') %>
       </div>
-      <div class="row" >
-        <%- include('partials/stocks') %>
+      <div class="row" style="display: none;" >
+        <%- include('partials/market') %>
         <%- include('partials/spotify') %>
         <%- include('partials/calendar') %>
       </div>
     </div>
   </body>
 </html>
+<script >
+let doneLoading = 0, loadingTimeout, stockScrollTimeout, cryptoScrollTimeout;
+$(function() {
+  function checkLoadStatus () {
+    if (loadingTimeout) {
+      clearTimeout(loadingTimeout);
+    }
+    if (doneLoading == 6) {
+      $("#loading").hide();
+      $(".row").show();
+      if (($("#stock-list .stock").length * $("#stock-list .stock:first-child").height()) > $("#stock-list").height()) {
+        autoScroll($("#stock-list"), 0, stockScrollTimeout);
+      }
+      if (($("#crypto-list .stock").length * $("#crypto-list .stock:first-child").height()) > $("#crypto-list").height()) {
+        autoScroll($("#crypto-list"), 0, cryptoScrollTimeout);
+      }
+    } else {
+      loadingTimeout = setTimeout(checkLoadStatus, 400);
+    }
+  }
+
+  function autoScroll($list, idx, scrollTimeout) {
+    if (scrollTimeout) {
+      clearTimeout(scrollTimeout);
+    }
+    let max = $list.children(".stock").length;
+    let maxOffset = $list.offset().top + $list.height();
+    let lastChildOffset = $list.children(".stock:last-child").offset().top;
+    let child = $list.children(".stock:nth-child(" + (idx + 1) +")");
+
+    if (child.offset().top - $list.offset().top > child.height()) {
+      idx = -1;
+    } else {
+      $list.animate({ scrollTop: child.height() * idx }, 1000);
+    }
+    
+    if (idx == max - 1) {
+      idx = 0;
+    } else {
+      idx++;
+    }
+    scrollTimeout = setTimeout(function() {autoScroll($list, idx, scrollTimeout)}, 4000);
+
+  }
+  checkLoadStatus();
+});
+</script>

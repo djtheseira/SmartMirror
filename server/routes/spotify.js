@@ -4,4 +4,5 @@ module.exports = function (app) {
   app.get("/callback", spotifyController.callbackSpotify);
   app.get("/currentSong", spotifyController.getCurrentSongInfo);
   app.get("/currentUser", spotifyController.getUserInfo);
+  app.get("/refreshToken", spotifyController.getAccessTokenFromRefresh);
 }

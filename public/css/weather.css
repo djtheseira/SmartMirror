@@ -9,6 +9,10 @@
 #current-icon {
   width: 70px;
 }
+#current-data {
+  display: inline-block;
+  vertical-align: middle;
+}
 #forecast-weather {
   display: flex;
   justify-content: space-between;

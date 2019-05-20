@@ -3,7 +3,7 @@
   height: 100%;
 }
 #stock-list, #crypto-list {
-  height: 40%;
+  max-height: 40%;
   overflow: scroll;
 }
 .up {

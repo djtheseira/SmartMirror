@@ -1,6 +1,6 @@
 let chai = require('chai');
 let chaiHttp = require('chai-http');
-let app = require('../server/server');
+let app = require('../app');
 let should = chai.should();
 
 describe('Market Info', function() {
@@ -16,6 +16,7 @@ describe('Market Info', function() {
         done();
       });
   });
+
   it('Check that getting market is valid, custom coins.', function (done) {
     chai.request(app)
       .get("/market?coins=BTC,ETH,TRX,VTC,STRAT,OMG,ICX")

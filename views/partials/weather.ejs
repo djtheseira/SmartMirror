@@ -1,16 +1,20 @@
-<link rel="stylesheet" type="text/css" href="/css/weather.css" >
 <div class="col-sm-4 module-container" id="weather-container" style="display: none; ">
   <div id="current-location"></div>
   <hr />
   <div id="current-weather">
     <span id="current-temp"></span>
     <img id="current-icon" />
+    <div id="current-data">
+      <span class="forecast-max" id="current-max" ></span>
+      <span class="forecast-min" id="current-min" ></span>
+    </div>
   </div>
   <hr />
   <div id="forecast-weather"></div>
 </div>
 <script>
 // var weatherTimeout;
+let firstLoadWeather = true;
 $(function() {
   function getWeather() {
     //TODO: Add daily timeout
@@ -28,8 +32,14 @@ $(function() {
         $("#current-location").text(location);
         $("#current-temp").text(current.temp);
         $("#current-icon").attr("src", ("/images/" + current.icon + ".svg"));
+        $("#current-max").text("High: " + current.high);
+        $("#current-min").text("Low: " + current.low);
         createDayElements(forecast);
         $("#weather-container").show();
+        if (firstLoadWeather) {
+          firstLoadWeather = false;
+          doneLoading++;
+        }
       }
     });
   };

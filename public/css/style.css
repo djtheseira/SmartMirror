@@ -11,7 +11,7 @@ html > body > .container {
   text-align: center;
 }
 body {
-  background-color: #000000db;
+  background-color: #333739;
   color: #eee;
   font-family: Helvetica, Arial;
   font-size: 2em;
@@ -25,4 +25,11 @@ ul {
 }
 .module-container {
   text-align: center;
+}
+#loading {
+  background-image: url(../images/loading-bar.gif);
+  background-size: 40%;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 100%;
 }

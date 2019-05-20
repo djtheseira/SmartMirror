@@ -49,20 +49,23 @@ exports.callbackSpotify = (req, res) => {
     .then(body => {
         let accessToken = body.access_token,
           refreshToken = body.refresh_token;
-
-        res.cookie("access_token", accessToken);
+        res.cookie("access_token", accessToken, { maxAge: 36000});
         res.cookie("refresh_token", refreshToken);
-        res.redirect('/#');
+        res.render('spotify_exit', {refreshToken, accessToken, error: null});
       })
     .catch(error => {
-      console.log("error: " + error);
-      res.redirect('/#');
+      console.error("error: " + error);
+      res.cookie("access_token", "");
+      res.render('spotify_exit', {error});
     });
   }
 }
 
 exports.getUserInfo = (req, res) => {
   let accessToken = req.query.access_token;
+  if (!accessToken) {
+
+  }
   var options = {
     uri: 'https://api.spotify.com/v1/me',
     headers: { 'Authorization': 'Bearer ' + accessToken },
@@ -98,13 +101,41 @@ exports.getCurrentSongInfo = (req, res) => {
     } else if (statusCode == 204) {
       res.status(statusCode).send({"success": 1, "data": "No song currently playing."})
     } else {
+      res.cookie("refresh_token", "");
       res.status(statusCode).send({"success": 0, "data": results.body});
     }
   })
   .catch(err => {
     console.log('current song error: ' + err);
+    res.cookie("access_token", "");
     res.status(400).send({})
   });
+}
+
+exports.getAccessTokenFromRefresh = (req, res) => {
+  let refresh = req.query.refresh_token;
+  let options = {
+    method: "POST",
+    uri: 'https://accounts.spotify.com/api/token',
+    headers: { 'Authorization': 'Basic ' + (Buffer.from(process.env.SPOT_CLIENT + ":" + process.env.SPOT_SECRET).toString("base64")) },
+    form: { 
+      grant_type: 'refresh_token',
+      refresh_token: refresh
+    },
+    json: true,
+  };
+
+  rp(options)
+    .then(results => {
+      let accessToken = results.access_token;
+      res.cookie("access_token", accessToken, { maxAge: 36000});
+      res.status(200).send({accessToken});
+    })
+    .catch(error => {
+      console.error("error: " + error);
+      res.cookie("access_token", "");
+      res.render('spotify_exit', {error});
+    });
 }
 
 let generateRandomString = function(length) {

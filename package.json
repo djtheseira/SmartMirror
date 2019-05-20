@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node ./server/app.js",
+    "start": "node ./app.js",
     "dev": "nodemon -e .ejs,.js --watch ./ ./app.js",
     "test": "mocha"
   },

@@ -53,7 +53,6 @@ exports.oAuthCallBack = async (req, res) => {
       console.log('error getting token: ', error);
     }
   }
-  console.log('refresh: ', refresh);
   res.render('exit', {refresh});
 }
 
@@ -84,11 +83,8 @@ exports.getCalendarItems = async (req, res) => {
   let events = [];
   let today = moment(moment().tz(timezone).format("YYYY-MM-DD")).format("YYYY-MM-DDTHH:00:00Z");
   let tomorrow =moment(moment().tz(timezone).format("YYYY-MM-DD")).add({days: 1}).format("YYYY-MM-DDTHH:00:00Z");
-  console.log('today: ', today);
-  console.log('tomorrow: ', tomorrow);
   for (let idx = 0; idx < calIds.length; idx++) {
     let id = calIds[idx];
-    console.log('id: ', id);
     let params = {
       calendarId: id,
       maxResults: 5,
@@ -124,7 +120,6 @@ let getCalendarIds = async (calendar) => {
 // Gets the events for a specific calendar.
 let getCalenderEvents = async (calendar, params, events) => {
   let calendarEventsResults = await calendar.events.list(params);
-  console.log(calendarEventsResults.data.items.length);
   calendarEventsResults.data.items.forEach((item, idx) => {
     if (item.start.dateTime) {
       item.timeSpan = moment(item.start.dateTime).format("HH:mm") + " - " + moment(item.end.dateTime).format("HH:mm");

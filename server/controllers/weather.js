@@ -115,12 +115,16 @@ exports.getWeather = async (req, res) => {
     }
     let curData = dsData.currently;
     let forecastData = dsData.daily.data;
+    let currentForecast = forecastData[0];
 
     data.current = {
       temp: createTempString(curData.temperature),
       humidty: curData.humidity,
       summary: curData.summary,
       icon: getWeatherIcon(curData.icon),
+      high: createTempString(currentForecast.temperatureHigh),
+      low: createTempString(currentForecast.temperatureLow),
+      feelsLike: createTempString(curData.apparentTemperature),
     };
     let forecastWeather = {};
 
@@ -129,7 +133,7 @@ exports.getWeather = async (req, res) => {
 
       let weatherObject = {
         date: dayDate,
-        maxTemp: idx == 0 ? createTempString(curData.temperature) : createTempString(day.temperatureHigh),
+        maxTemp: createTempString(day.temperatureHigh),
         maxTempTime: moment(day.temperatureHighTime * 1000).format('hh:mm'),
         minTemp: createTempString(day.temperatureLow),
         minTempTime: moment(day.temperatureLowTime * 1000).format('hh:mm'),
@@ -291,7 +295,8 @@ exports.getCurrentWeather = async(req, res) => {
 }
 
 let createTempString = function (temp ) {
-  let newTemp = temp > 50 ? Math.ceil(temp) : Math.floor(temp);
+  let split = temp.toString().split(".");
+  let newTemp = split[1] && split[1] > 50 ? Math.ceil(temp) : Math.floor(temp);
   newTemp += String.fromCharCode(176) + (units === "us" ? "F" : "C");
   return newTemp;
 }

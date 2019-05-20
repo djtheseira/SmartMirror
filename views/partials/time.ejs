@@ -1,10 +1,11 @@
-<link rel="stylesheet" type="text/css" href="/css/time.css" >
 <div class="col-sm-4 module-container" id="time-container" >
   <span id="date-info"></span>
   <span id="time-info"></span>
+  <span id="quote"></span>
 </div>
 <script>
-var timeTimeout;
+let timeTimeout;
+let firstLoadTime = true;
 $(function() {
   function getTime() {
     if (timeTimeout) {
@@ -19,8 +20,22 @@ $(function() {
 
         $("#date-info").text(data.day);
         $("#time-info").text(data.time);
+        let $quote = $("#quote");
+        if ($quote.text()) {
+          $quote.fadeOut(400, 0, function() {
+            $quote.text(data.quote);
+            $quote.fadeIn(400);
+          });
+        } else {
+          $quote.text(data.quote);
+        }
+
         var timeout = (60 - new Date().getSeconds()) * 1000;
         setTimeout(getTime, timeout);
+        if (firstLoadTime) {
+          firstLoadTime = false;
+          doneLoading++;
+        }
       }
     });
   };

@@ -4,8 +4,8 @@ require('dotenv').config();
 
 const ccUrl = "https://min-api.cryptocompare.com/data/pricemultifull?fsyms=[fsyms]&tsyms=USD";
 const iexUrl = "https://api.iextrading.com/1.0/stock/market/batch?symbols=[fsyms]&types=quote";
-const defaultCoins = "BTC,ETH,NEO,XRP";
-const defaultStocks = "aAAPL,FB,SNAP,RTN,BABA,TSLA"
+const defaultCoins = "BTC,ETH,NEO,XRP,VTC,OMG,TRX,SC";
+const defaultStocks = "AMD,MU,GLW,AAPL,FB,SNAP,RTN,BABA,QCOM,TSLA"
 
 exports.getMarketPrices = async (req, res) => {
   let coins = req.query.coins ? req.query.coins : defaultCoins;
@@ -55,7 +55,7 @@ let getCryptoPrices = async(coinsUrl) => {
         let change = Math.ceil(usd.CHANGEPCTDAY * 100)/100;
         let crypto = {
           coin: key,
-          price: "$" + usd.PRICE.toLocaleString(),
+          price: "$" + usd.PRICE.toFixed(2).toLocaleString(),
           change
         };
         cryptos.push(crypto);
@@ -80,9 +80,11 @@ let getStockPrices = async(stockUrl) => {
         let quote = json[key].quote;
         let change = Math.ceil(quote.changePercent * 10000)/100;
 
+
+
         let stock = {
           symbol: quote.symbol,
-          price: "$" + quote.latestPrice.toLocaleString(),
+          price: "$" + quote.latestPrice.toFixed(2).toLocaleString(),
           change
         };
         stocks.push(stock);
