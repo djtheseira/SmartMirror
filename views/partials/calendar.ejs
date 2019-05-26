@@ -1,99 +1,109 @@
 <div class="col-sm-4 module-container" id="google-container" >
+  <div id="google-login" style="display: none;" >
+    <p>Please allow access to your Google Calendar.</p>
+    <p style="font-size: 16px;">The calendars that will be displayed are the ones that are selected in the Google Calendar view.</p>
+    <a class="btn btn-primary" href="javascript:void(0);" target="_blank" id="gcal-auth-url"  >Connect to Google</a>
+  </div>
   <div id="events-list-container" >
     <ul id="events-list"></ul>
   </div>
-  <a href="javascript:void(0);" target="_blank" id="gcal-auth-url" style="display: none;" >Get User Auth</a>
 </div>
 <script>
 let gCalWindow; 
 let gCalInterval;
 let gCalTimeout;
-let firstLoadCalendar = true;
+let firstLoadCalendar = true, gcalTokenExists = false;
 
 $(function() {
-  function getCookies() {
-    let gcalTokenExists = false;
-    var cookies = decodeURIComponent(document.cookie).split("; ");
-    for (var i = 0; i < cookies.length; i++) {
-      var cookie = cookies[i].split("=");
-      var cookieName = cookie[0];
-      if (cookieName === "gcal_token") {
-        gcalTokenExists = true;
-        break;
-      }
-    }
-    if (!gcalTokenExists) {
-      getAuthUrl();
-    } else {
-      getCalendarEventsList();
-    }
-  }
-
-  function getAuthUrl() {
-    $.ajax({
-      url: '/getuserauth',
-      success: function(results) {
-        if (results.url) {
-          gCalWindow = window.open(results.url, '_blank', 'toolbar=0,status=0,width=626,height=700,top=100,left=100');
-          gCalInterval = setInterval(checkGoogleWindow, 500);
+  if ($(window).width() > 767) {
+    function getCookies() {
+      var cookies = decodeURIComponent(document.cookie).split("; ");
+      for (var i = 0; i < cookies.length; i++) {
+        var cookie = cookies[i].split("=");
+        var cookieName = cookie[0];
+        if (cookieName === "gcal_token") {
+          gcalTokenExists = true;
+          break;
         }
       }
-    });
-  }
-
-  function getCalendarEventsList() {
-    $.ajax({
-      url: '/getcalendaritems',
-      success: createEventsList,
-      error: function (data) {
-        document.cookie = "gcal_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      if (!gcalTokenExists) {
         getAuthUrl();
+      } else {
+        getCalendarEventsList();
       }
-    });
-  }
+    }
 
-  function createEventsList(results) {
-    let eventsList = $("#events-list");
-    eventsList.empty();
-    if (results.events.length) {
-      $.each(results.events, (idx, item) => {
+    function getAuthUrl() {
+      $.ajax({
+        url: '/getuserauth',
+        success: function(results) {
+          if (results.url) {
+            gCalWindow = window.open(results.url, '_blank', 'toolbar=0,status=0,width=626,height=700,top=100,left=100');
+            gCalInterval = setInterval(checkGoogleWindow, 500);
+          }
+        }
+      });
+    }
+
+    function getCalendarEventsList() {
+      $.ajax({
+        url: '/getcalendaritems',
+        success: createEventsList,
+        error: function (data) {
+          document.cookie = "gcal_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+          getAuthUrl();
+        }
+      });
+    }
+
+    function createEventsList(results) {
+      let eventsList = $("#events-list");
+      eventsList.empty();
+      if (results.events.length) {
+        $.each(results.events, (idx, item) => {
+          let event = $("<li>", {
+            "class": "event",
+          });
+          let summary = "<span class=\"event-summary\">" + item.summary + "</span>";
+          let date = "<span class=\"event-date\">";
+          if (item.start.date) {
+            date += "All Day";
+          } else {
+            date += item.timeSpan;
+          }
+          date += "</span>";
+          event.append(summary);
+          event.append(date);
+          eventsList.append(event);
+        });
+      } else {
         let event = $("<li>", {
           "class": "event",
         });
-        let summary = "<span class=\"event-summary\">" + item.summary + "</span>";
-        let date = "<span class=\"event-date\">";
-        if (item.start.date) {
-          date += "All Day";
-        } else {
-          date += item.timeSpan;
-        }
-        date += "</span>";
-        event.append(summary);
-        event.append(date);
+        let noEvents = "<span class=\"event-summary\" style=\"text-align: center;\">No events are planned for today. <br/><br/>Enjoy your day off!</span>";
+        event.append(noEvents);
         eventsList.append(event);
-      });
-    } else {
-      let event = $("<li>", {
-        "class": "event",
-      });
-      let noEvents = "<span class=\"event-summary\" style=\"text-align: center;\">No events are planned for today. <br/><br/>Enjoy your day off!</span>";
-      event.append(noEvents);
-      eventsList.append(event);
+      }
+      gCalTimeout = setTimeout(getCalendarEventsList, (60 - new Date().getMinutes()) * 60000 + (60 - new Date().getSeconds()) * 60);
+      if (firstLoadCalendar) {
+        firstLoadCalendar = false;
+        doneLoading++;
+      }
     }
-    gCalTimeout = setTimeout(getCalendarEventsList, (60 - new Date().getMinutes()) * 60000 + (60 - new Date().getSeconds()) * 60);
-    if (firstLoadCalendar) {
-      firstLoadCalendar = false;
-      doneLoading++;
-    }
-  }
 
-  function checkGoogleWindow() {
-    if (gCalWindow.closed) {
-      clearInterval(gCalInterval);
-      getCalendarEventsList();
+    function checkGoogleWindow() {
+      if (gCalWindow.closed ) {
+        clearInterval(gCalInterval);
+        if (gcalTokenExists) {
+          getCalendarEventsList();
+        } else {
+          $("#google-login").show();
+          doneLoading++;
+        }
+      }
     }
+    
+    getCookies();
   }
-  
-  getCookies();
 });
 </script>

@@ -4,7 +4,6 @@ require('dotenv').config();
 
 exports.authorizeSpotifyLogin = (req, res) => {
   // process.env.SPOT_SECRET
-
   let state = generateRandomString(16);
   res.cookie("spotify_auth_state", state);
   res.redirect("https://accounts.spotify.com/authorize?" + 
@@ -22,7 +21,6 @@ exports.callbackSpotify = (req, res) => {
   let code = req.query.code || null;
   let state = req.query.state || null;
   let storedState = req.cookies ? req.cookies['spotify_auth_state'] : null;
-  
   if (state === null || state !== storedState) {
     res.redirect('/#' +
       qs.stringify({
@@ -54,9 +52,9 @@ exports.callbackSpotify = (req, res) => {
         res.render('spotify_exit', {refreshToken, accessToken, error: null});
       })
     .catch(error => {
-      console.error("error: " + error);
-      res.cookie("access_token", "");
+      console.error("Callback error: " + error);
       res.render('spotify_exit', {error});
+      res.cookie("access_token", { maxAge: Date.now()});
     });
   }
 }
@@ -82,6 +80,7 @@ exports.getUserInfo = (req, res) => {
   .catch(error => {
     console.log('userinfo error: ' + error);
     res.status(400).send({"status": 0, "error": error});
+    res.cookie("access_token", { maxAge: Date.now()});
   });
 }
 
@@ -107,7 +106,7 @@ exports.getCurrentSongInfo = (req, res) => {
   })
   .catch(err => {
     console.log('current song error: ' + err);
-    res.cookie("access_token", "");
+    res.cookie("access_token", { maxAge: Date.now()});
     res.status(400).send({})
   });
 }
@@ -132,8 +131,8 @@ exports.getAccessTokenFromRefresh = (req, res) => {
       res.status(200).send({accessToken});
     })
     .catch(error => {
-      console.error("error: " + error);
-      res.cookie("access_token", "");
+      console.error("Get Refresh Token error: " + error);
+      res.cookie("access_token", { maxAge: Date.now()});
       res.render('spotify_exit', {error});
     });
 }

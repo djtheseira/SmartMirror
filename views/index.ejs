@@ -14,13 +14,14 @@
   </head>
   <body>
     <div class="container" >
-      <div id="loading" ></div>
-      <div class="row" style="display: none;" >
+      <div class="hidden-md hidden-lg">This site is made to appear on a screen behind a mirror, it will display well on a screen smaller than 768px.</div>
+      <div id="loading" class="hidden-xs hidden-sm" ></div>
+      <div class="row hidden-xs hidden-sm" style="display: none;" >
         <%- include('partials/weather') %>
         <%- include('partials/time') %>
         <%- include('partials/news') %>
       </div>
-      <div class="row" style="display: none;" >
+      <div class="row hidden-xs hidden-sm" style="display: none;" >
         <%- include('partials/market') %>
         <%- include('partials/spotify') %>
         <%- include('partials/calendar') %>

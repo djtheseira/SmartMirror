@@ -51,13 +51,16 @@ $(function() {
       let icon = $("<img>", {
         "src": "/images/" + item.icon + ".svg", 
         "alt": item.summary, "class": "forecast-icon"});
+      // let tempContainer = $("<div>", {"class": "forecast-temp-container"});
       let max = $("<span>", {"text": item.maxTemp, "class": "forecast-max"});
       let min = $("<span>", {"text": item.minTemp, "class": "forecast-min"});
       let day = $("<span>", {"text": item.date, "class": "forecast-day"});
+      
+      dayContainer.append(day);
       dayContainer.append(icon);
       dayContainer.append(max);
       dayContainer.append(min);
-      dayContainer.append(day);
+      // dayContainer.append(tempContainer);
       $("#forecast-weather").append(dayContainer);
     });
     $("#forecast-weather").hide().show();

@@ -17,6 +17,12 @@
   display: flex;
   justify-content: space-between;
 }
+.forecast-temp-container {
+  display: inline-block;
+}
+.forecast-icon {
+  vertical-align: top;
+}
 .forecast-max, .forecast-min, .forecast-day {
   display: block;
   font-size: 18px;
