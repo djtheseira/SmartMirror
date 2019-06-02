@@ -78,7 +78,6 @@ exports.getCalendarItems = async (req, res) => {
     .catch(error => {
       console.log('getcalendarids: ', error.message);
       res.status(400).send({error: "Please refresh the page and ensure you have granted the correct permissions."});
-      res.cookie("gcal_token", { maxAge: Date.now()});
   });
 
   if (!calIds) return;
