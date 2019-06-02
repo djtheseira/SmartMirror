@@ -50,10 +50,11 @@
         for (var i = 0; i < cookies.length; i++) {
           var cookie = cookies[i].split("=");
           var cookieName = cookie[0];
-          if (cookieName === "refresh_token" && cookie[1]) {
-            refresh_token = cookie[1];
-          } else if (cookieName === "access_token" && cookie[1]) {
-            access_token = cookie[1];
+          var cookieValue = cookie[1];
+          if (cookieName === "refresh_token" && cookieValue && cookieValue.length > 0 ) {
+            refresh_token = cookieValue;
+          } else if (cookieName === "access_token" && cookieValue && cookieValue.length > 0) {
+            access_token = cookieValue;
           }
         }
       }

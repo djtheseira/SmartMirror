@@ -47,9 +47,11 @@ exports.oAuthCallBack = async (req, res) => {
         })
         .catch (error => {
           console.log('Error getting token: ', error);
+          res.cookie("gcal_token", { maxAge: Date.now()});
         });
     } catch (error) {
       console.log('error getting token: ', error);
+      res.cookie("gcal_token", { maxAge: Date.now()});
     }
   }
   res.render('exit', {refresh});
@@ -64,6 +66,7 @@ exports.getCalendarItems = async (req, res) => {
       res.cookie('gcal_token', gcal_token);
     } else {
       res.status(400).send({"error": "Please clear your cookies or try again later."});
+      res.cookie("gcal_token", { maxAge: Date.now()});
       return;
     }
   }
@@ -73,9 +76,9 @@ exports.getCalendarItems = async (req, res) => {
   const calendar = google.calendar({version: 'v3', auth: authClient});
   let calIds = await getCalendarIds(calendar)
     .catch(error => {
-      console.log('catch');
-      console.log(error.message);
-      res.status(400).send({error: error.message});
+      console.log('getcalendarids: ', error.message);
+      res.status(400).send({error: "Please refresh the page and ensure you have granted the correct permissions."});
+      res.cookie("gcal_token", { maxAge: Date.now()});
   });
 
   if (!calIds) return;

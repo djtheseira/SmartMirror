@@ -11,7 +11,7 @@ exports.authorizeSpotifyLogin = (req, res) => {
       "response_type": "code",
       "client_id": process.env.SPOT_CLIENT,
       scope: process.env.SPOT_SCOPE,
-      redirect_uri: "http://smartmirror.donovant.me:5001/callback",
+      redirect_uri: process.env.REDIRECT_HOST + "/callback",
       state: state
     })
   );
@@ -28,13 +28,15 @@ exports.callbackSpotify = (req, res) => {
       })
     );
     //res.clearCookie('spotify_auth_state');
+    res.cookie("access_token", { maxAge: Date.now()});
+    res.cookie("spotify_auth_state", { maxAge: Date.now()});
   } else {
     let authOptions = {
       method: "POST",
       uri: "https://accounts.spotify.com/api/token",
       form: {
         code: code,
-        redirect_uri: "http://smartmirror.donovant.me:5001/callback",
+        redirect_uri: process.env.REDIRECT_HOST + "/callback",
         grant_type: 'authorization_code'
       },
       headers: {
@@ -100,7 +102,7 @@ exports.getCurrentSongInfo = (req, res) => {
     } else if (statusCode == 204) {
       res.status(statusCode).send({"success": 1, "data": "No song currently playing."})
     } else {
-      res.cookie("refresh_token", "");
+      res.cookie("refresh_token", { maxAge: Date.now()});
       res.status(statusCode).send({"success": 0, "data": results.body});
     }
   })
