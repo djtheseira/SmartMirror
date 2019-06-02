@@ -28,6 +28,7 @@
   let spotifyVerifyWindow;
   let spotifyInterval;
   let firstLoadSpotify = true;
+  let access_token = "", refresh_token = "";
   $(function() {
     if ($(window).width() > 767) {
       function getHashParams() {
@@ -41,13 +42,11 @@
       }
 
       var params = getHashParams();
-      var error = params.error,
-        access_token = "", refresh_token = "";
+      var error = params.error;
 
 
       function getCookies() {
         var cookies = decodeURIComponent(document.cookie).split("; ");
-        access_token = "", refresh_token = "";
         for (var i = 0; i < cookies.length; i++) {
           var cookie = cookies[i].split("=");
           var cookieName = cookie[0];
@@ -104,13 +103,14 @@
         });
       }
 
-      $("#test-refresh-spot").on("click", refreshToken);
-
       function getCurrentSongInfo() {
         getCookies();
         if (!access_token) {
           refreshToken();
           return;
+        } else if (!access_token && !refresh_token) {
+          checkSpotifyWindow();
+          return ;
         }
         $.ajax({
           url: '/currentSong',

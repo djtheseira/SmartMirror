@@ -67,6 +67,7 @@ exports.getWeather = async (req, res) => {
   let cityId = req.params.cityId ? req.params.cityId : 0;
   let weather = {};
   let data = {};
+
   let gmapsOptions = {
     uri: gmaps,
     qs: {
