@@ -36,7 +36,6 @@ exports.oAuthCallBack = async (req, res) => {
   let authCode = req.query.code;
   let refresh = "";
   if (authCode) {
-    console.log('authCode: ', authCode);
     try {
       await authClient.getToken(authCode)
         .then(results => {

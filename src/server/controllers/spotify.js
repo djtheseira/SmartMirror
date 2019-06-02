@@ -11,7 +11,7 @@ exports.authorizeSpotifyLogin = (req, res) => {
       "response_type": "code",
       "client_id": process.env.SPOT_CLIENT,
       scope: process.env.SPOT_SCOPE,
-      redirect_uri: "http://localhost:5001/callback",
+      redirect_uri: "http://smartmirror.donovant.me:5001/callback",
       state: state
     })
   );
@@ -34,7 +34,7 @@ exports.callbackSpotify = (req, res) => {
       uri: "https://accounts.spotify.com/api/token",
       form: {
         code: code,
-        redirect_uri: "http://localhost:5001/callback",
+        redirect_uri: "http://smartmirror.donovant.me:5001/callback",
         grant_type: 'authorization_code'
       },
       headers: {
