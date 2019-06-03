@@ -26,12 +26,15 @@ $(function() {
           break;
         }
       }
-      if (!gcalTokenExists) {
-        getAuthUrl();
-      } else {
+
+      if (gcalTokenExists) {
         getCalendarEventsList();
+      } else if (firstLoadCalendar) {
+        getAuthUrl();
       }
     }
+
+    $("#gcal-auth-url").on("click", getAuthUrl);
 
     function getAuthUrl() {
       $.ajax({
@@ -84,21 +87,23 @@ $(function() {
         event.append(noEvents);
         eventsList.append(event);
       }
+      $("#google-login").hide();
+      $("#events-list-container").show();
       gCalTimeout = setTimeout(getCalendarEventsList, (60 - new Date().getMinutes()) * 60000 + (60 - new Date().getSeconds()) * 60);
-      if (firstLoadCalendar) {
-        firstLoadCalendar = false;
-        doneLoading++;
-      }
     }
 
     function checkGoogleWindow() {
-      if (gCalWindow.closed ) {
+      if (gCalWindow.closed) {
         clearInterval(gCalInterval);
-        if (gcalTokenExists) {
-          getCalendarEventsList();
-        } else {
-          $("#google-login").show();
+        if (firstLoadCalendar) {
           doneLoading++;
+          firstLoadCalendar = false;
+        }
+        getCookies();
+        if (!gcalTokenExists) {
+          $("#google-login").show();
+        } else {
+          getCalendarEventsList();
         }
       }
     }

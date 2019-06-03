@@ -76,7 +76,7 @@ exports.getCalendarItems = async (req, res) => {
   const calendar = google.calendar({version: 'v3', auth: authClient});
   let calIds = await getCalendarIds(calendar)
     .catch(error => {
-      console.log('getcalendarids: ', error.message);
+      console.log('getcalendarids: ' + error.message);
       res.status(400).send({error: "Please refresh the page and ensure you have granted the correct permissions."});
   });
 

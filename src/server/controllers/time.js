@@ -10,7 +10,7 @@ const quotes = [
   "Life starts at the end of your comfort zone.",
   "Life is 10% what happens to you and 90% how you react to it.",
   "It does not matter how slowly you go, as long as you do not stop.",
-  "Good, better, best. Newver let it rest. Til your good is better and your better is best.",
+  "Good, better, best. Never let it rest. Til your good is better and your better is best.",
   "Remember your dreams and fight for them. The fear of failure is the only thing stopping you.",
   "Failure is nothing more than a chance to revise your strategy."
 ]
