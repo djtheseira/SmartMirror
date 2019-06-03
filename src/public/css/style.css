@@ -7,8 +7,6 @@ html, body {
 html > body > .container {
   padding-top: 15px;
   padding-bottom: 15px;
-  margin-right: 15px;
-  margin-left: 15px;
   width: unset;
   max-width: 1920px;
   text-align: center;
