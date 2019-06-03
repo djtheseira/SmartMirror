@@ -49,14 +49,16 @@ $(function() {
     }
 
     function getCalendarEventsList() {
-      $.ajax({
-        url: '/getcalendaritems',
-        success: createEventsList,
-        error: function (data) {
-          document.cookie = "gcal_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-          getAuthUrl();
-        }
-      });
+      if (gcalTokenExists) {
+        $.ajax({
+          url: '/getcalendaritems',
+          success: createEventsList,
+          error: function (data) {
+            document.cookie = "gcal_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            gcalTokenExists = false;
+          }
+        });
+      }
     }
 
     function createEventsList(results) {
