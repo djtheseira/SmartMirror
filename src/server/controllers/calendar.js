@@ -66,7 +66,6 @@ exports.getCalendarItems = async (req, res) => {
       res.cookie('gcal_token', gcal_token);
     } else {
       res.status(400).send({"error": "Please clear your cookies or try again later."});
-      res.cookie("gcal_token", { maxAge: Date.now()});
       return;
     }
   }
