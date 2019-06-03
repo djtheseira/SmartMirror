@@ -1,0 +1,1 @@
+#stocks-container{text-align:left;height:100%}#crypto-list,#stock-list{max-height:40%;overflow:scroll}.up{color:green}.down{color:red}.change,.price,.symbol{display:inline-block}.symbol{width:38%;padding-right:2%}.price{width:40%;text-align:right;padding-right:2%}.change{width:20%;text-align:right}

@@ -6,7 +6,7 @@
 }
 #song-container {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   justify-content: center;
   align-items: center;
 }
@@ -17,12 +17,14 @@
 }
 #song-info p {
   margin: 0 0 5px;
+  line-height: 1em;
 }
 #song-title {
-  font-size: 1.3em;
+  font-size: 1.75em;
 }
-#artist-name {
-  font-size: 1em;
+#song-info #artist-name {
+  font-size: 1.3em;
+  margin-bottom: 25px;
 }
 #song-status {
   font-size: 0.9em;

@@ -1,5 +1,8 @@
-html, body, .container {
+html, body {
   height: 100%;
+}
+.container {
+  height: 98%;
 }
 html > body > .container {
   padding-top: 15px;
@@ -15,6 +18,9 @@ body {
   color: #eee;
   font-family: Helvetica, Arial;
   font-size: 2em;
+}
+a {
+  color: #12abea;
 }
 ul {
   list-style: none;

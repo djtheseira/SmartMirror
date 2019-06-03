@@ -1,4 +1,4 @@
-<div class="col-sm-4 module-container" id="google-container" >
+<div class="col-sm-8 module-container" id="google-container" >
   <div id="google-login" style="display: none;" >
     <p>Please allow access to your Google Calendar.</p>
     <p style="font-size: 16px;">The calendars that will be displayed are the ones that are selected in the Google Calendar view.</p>
@@ -29,6 +29,9 @@ $(function() {
 
       if (gcalTokenExists) {
         getCalendarEventsList();
+        if (firstLoadCalendar) {
+          doneLoading++;
+        }
       } else if (firstLoadCalendar) {
         getAuthUrl();
       }
@@ -54,8 +57,9 @@ $(function() {
           url: '/getcalendaritems',
           success: createEventsList,
           error: function (data) {
-            document.cookie = "gcal_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            document.cookie = "gcal_token=; expires=" + new Date() + "; path=/;";
             gcalTokenExists = false;
+            console.log("Something went wrong connecting to your account, please refresh the page.");
           }
         });
       }

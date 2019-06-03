@@ -1,5 +1,7 @@
 const {google} = require('googleapis');
+const fs = require("fs");
 const moment = require('moment-timezone');
+const token_path = "token.json";
 
 require('dotenv').config();
 
@@ -22,10 +24,25 @@ let authUrl = authClient.generateAuthUrl({
 //   console.log(tokens.access_token);
 // })
 
+getTokenFromFile = () => {
+  fs.readFile(token_path, (err, token) => {
+    if (err) {console.log(err);}
+    try {
+      let parsedToken = JSON.parse(token);
+      authClient.setCredentials(parsedToken);
+      console.log('done');
+
+    } catch (err) {
+      console.log(err);
+    }
+  });
+  return true;
+}
+
 exports.getUserAuth = (req, res) => {
-  let gcal_token = req.cookies ? req.cookies['gcal_token'] : '';
-  if (gcal_token) {
-    authClient.setCredentials({refresh_token: gcal_token});
+  // let gcal_token = req.cookies ? req.cookies['gcal_token'] : '';
+  if (getTokenFromFile()) {
+    res.cookie('gcal_token', true);
     res.status(200).send({status: 1});
   } else {
     res.status(200).send({ url: authUrl });
@@ -39,10 +56,14 @@ exports.oAuthCallBack = async (req, res) => {
     try {
       await authClient.getToken(authCode)
         .then(results => {
-          if (results.tokens) {
-            authClient.setCredentials(results.tokens);
-            refresh = results.tokens.refresh_token;
-            res.cookie('gcal_token', refresh);
+          if (results) {
+            authClient.setCredentials(results);
+            // res.cookie('gcal_token', refresh);
+            fs.writeFile(token_path, JSON.stringify(results), (err) => {
+              if (err) return console.error(err);
+              console.log('token written to: ', token_path);
+              res.cookie('gcal_token', true);
+            });
           }
         })
         .catch (error => {
@@ -59,18 +80,21 @@ exports.oAuthCallBack = async (req, res) => {
 
 exports.getCalendarItems = async (req, res) => {
   let timezone = req.query.timezone ? req.query.timezone : 'America/Los_Angeles';
-  let gcal_token = req.cookies ? req.cookies['gcal_token'] : '';
-  if (!gcal_token) {
-    gcal_token = authClient.credentials.refresh_token;
-    if (gcal_token) {
-      res.cookie('gcal_token', gcal_token);
-    } else {
-      res.status(400).send({"error": "Please clear your cookies or try again later."});
-      return;
-    }
-  }
+  // let gcal_token = req.cookies ? req.cookies['gcal_token'] : '';
+  // if (!gcal_token) {
+  //   gcal_token = authClient.credentials.refresh_token;
+  //   if (gcal_token) {
+  //     res.cookie('gcal_token', gcal_token);
+  //   } else {
+  //     res.cookie("gcal_token", { maxAge: Date.now()});
+  //     res.status(400).send({"error": "Please clear your cookies or try again later."});
+  //     return;
+  //   }
+  // }
 
-  authClient.setCredentials({refresh_token: gcal_token});
+  getTokenFromFile();
+
+  // authClient.setCredentials({refresh_token: gcal_token});
 
   const calendar = google.calendar({version: 'v3', auth: authClient});
   let calIds = await getCalendarIds(calendar)

@@ -1,4 +1,4 @@
-<div class="col-sm-4 module-container" id="spotify-container" >
+<div class="col-sm-8 module-container" id="spotify-container" >
   <div id="login" style="display: none;" >
     <p>Please allow access to your spotify account for this app to work.</p>
     <a class="btn btn-primary" id="verify-spotify" >Connect to Spotify</a>
@@ -125,7 +125,7 @@
               let item = data.item;
               let albumImage = item.album.images[1];
               let artists = item.artists;
-              $("#album-cover").attr({"src": albumImage.url, "width": albumImage.width-50, "height": albumImage.height-50});
+              $("#album-cover").attr({"src": albumImage.url, "width": albumImage.width + 50, "height": albumImage.height + 50});
               $("#song-title").text(item.name);
               $("#artist-name").empty();
               for (let aCount = 0; aCount < artists.length; aCount++) {
