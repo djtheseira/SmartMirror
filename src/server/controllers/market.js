@@ -30,7 +30,7 @@ exports.getMarketPrices = async (req, res) => {
       results.stock = stock;
     }
     if (stock.status) {
-      status = crypto.status;
+      status = stock.status;
     }
   }
   
