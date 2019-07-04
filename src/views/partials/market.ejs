@@ -10,7 +10,11 @@ $(function() {
   function getMarketInfo() {
     $.ajax({
       url: "/market",
-      success: createMarketInfoList
+      success: createMarketInfoList,
+      error: function() {
+        console.log("something went wrong");
+        doneLoading++;
+      }
     });
   }
   

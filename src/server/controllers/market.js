@@ -3,34 +3,28 @@ const util = require('util');
 require('dotenv').config();
 
 const ccUrl = "https://min-api.cryptocompare.com/data/pricemultifull?fsyms=[fsyms]&tsyms=USD";
-const iexUrl = "https://api.iextrading.com/1.0/stock/market/batch?symbols=[fsyms]&types=quote";
+const iexUrl = "https://cloud.iexapis.com/v1/stock/market/batch?token=[token]&symbols=[fsyms]&types=quote";
 const defaultCoins = "BTC,ETH,NEO,XRP,VTC,OMG,TRX,SC";
-const defaultStocks = "AMD,MU,GLW,AAPL,FB,SNAP,RTN,BABA,QCOM,TSLA"
+const defaultStocks = "AMD,MU,GLW,AAPL,FB,SNAP,RTN,QCOM,TSLA"
 
 exports.getMarketPrices = async (req, res) => {
   let coins = req.query.coins ? req.query.coins : defaultCoins;
   let coinUrl = ccUrl.replace('[fsyms]', coins);
   let stocks = req.query.stocks ? req.query.stocks : defaultStocks;
   let stockUrl = iexUrl.replace('[fsyms]', stocks);
+  stockUrl = stockUrl.replace('[token]', process.env.IEXPUBKEY);
   let results = {};
   let status = 200;
 
   if (coins) {
     let crypto = await getCryptoPrices(coinUrl);
     results.crypto = crypto;
-
-    if (crypto.status) {
-      status = crypto.status;
-    }
   }
 
   if (stocks) {
     let stock = await getStockPrices(stockUrl);
     if (stock.length > 0) {
       results.stock = stock;
-    }
-    if (stock.status) {
-      status = stock.status;
     }
   }
   
@@ -79,8 +73,6 @@ let getStockPrices = async(stockUrl) => {
       Object.keys(json).forEach((key, idx) => {
         let quote = json[key].quote;
         let change = Math.ceil(quote.changePercent * 10000)/100;
-
-
 
         let stock = {
           symbol: quote.symbol,
