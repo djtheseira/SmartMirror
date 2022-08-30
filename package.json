@@ -22,7 +22,7 @@
     "googleapis": "^39.2.0",
     "mocha": "^5.2.0",
     "moment": "^2.22.2",
-    "moment-timezone": "^0.5.21",
+    "moment-timezone": "^0.5.35",
     "query-string": "^6.2.0",
     "redis": "^2.8.0",
     "request": "^2.88.0",
